@@ -1,0 +1,48 @@
+services:
+  web:
+    build: .
+    ports:
+      - "127.0.0.1:8000:80"
+    environment:
+      DB_HOST: db
+      DB_USER: sanah
+      DB_PASSWORD: sanah_local
+      DB_NAME: sanahstore
+    volumes:
+      - .:/var/www/html
+      - ./docker/shop.ini:/usr/local/etc/php/conf.d/shop.ini:ro
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mariadb:10.11
+    environment:
+      MARIADB_ROOT_PASSWORD: root_local
+      MARIADB_DATABASE: sanahstore
+      MARIADB_USER: sanah
+      MARIADB_PASSWORD: sanah_local
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./DB/sanahstore.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./DB/02-roles-pos.sql:/docker-entrypoint-initdb.d/02-roles-pos.sql:ro
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+
+  phpmyadmin:
+    image: phpmyadmin:5-apache
+    ports:
+      - "127.0.0.1:8081:80"
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  db_data:

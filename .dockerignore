@@ -1,0 +1,6 @@
+.git
+.agents
+.codex
+.aws
+tests/node_modules
+tests/artifacts

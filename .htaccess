@@ -1,0 +1,4 @@
+Options -Indexes
+<FilesMatch "^(compose\.yaml|Dockerfile|README\.md|.*\.sql|.*\.ini|.*\.log|.*\.bak|\..*)$">
+    Require all denied
+</FilesMatch>
